@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ДУП.03 Основы информационных технологий — Лекции 1–2</title>
+<style>
+  :root {
+    --bg: #eef1f8;
+    --surface: #ffffff;
+    --ink: #141a2e;
+    --muted: #5b6478;
+    --indigo: #3a45c4;
+    --violet: #7c3aed;
+    --cyan: #0891b2;
+    --brand: linear-gradient(135deg, #3a45c4 0%, #6d28d9 55%, #7c3aed 100%);
+    --mark: #4f46e5;
+    --theme-2: #0d9488;
+    --theme-2-dark: #0f766e;
+    --theme-2-brand: linear-gradient(135deg, #0e7490 0%, #0d9488 55%, #0891b2 100%);
+    --line: #e3e7f0;
+    --ok: #15803d;
+    --ok-soft: #dcfce7;
+    --bad: #b91c1c;
+    --bad-soft: #fee2e2;
+    --warn: #b45309;
+    --warn-soft: #fef3c7;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased; }
+  main { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+
+  /* ---------- Animated background ---------- */
+  .bg-anim { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    background: linear-gradient(135deg,#e9edf8 0%,#eef1f8 100%); }
+  .bg-anim i { position:absolute; border-radius:50%; filter:blur(64px); opacity:.42; display:block; }
+  .bg-anim i.d1 { width:340px; height:340px; background:#7c3aed; top:-90px; left:-70px; animation:drift 20s infinite ease-in-out; }
+  .bg-anim i.d2 { width:300px; height:300px; background:#0891b2; bottom:-80px; right:-60px; animation:drift 24s infinite ease-in-out reverse; }
+  .bg-anim i.d3 { width:250px; height:250px; background:#db2777; top:44%; left:72%; animation:drift 27s infinite ease-in-out; }
+  .bg-anim i.d4 { width:200px; height:200px; background:#16a34a; top:12%; left:52%; opacity:.3; animation:drift 22s infinite ease-in-out reverse; }
+  @keyframes drift {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(46px,-34px) scale(1.06); }
+    66% { transform: translate(-38px,30px) scale(.96); }
+  }
+
+  /* ---------- Header ---------- */
+  header.top { padding: 2.4rem 0 1.4rem; border-bottom: 1px solid var(--line); margin-bottom: 1.4rem; }
+  header.top .course { display:inline-block; font-weight:700; font-size:.78rem; letter-spacing:.06em;
+    text-transform:uppercase; color:#fff; background:var(--brand); padding:.3rem .7rem; border-radius:999px; margin-bottom:.8rem;}
+  header.top h1 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height:1.15; margin:0 0 .4rem; }
+  header.top .meta { color: var(--muted); font-size:.88rem; margin:0; }
+
+  /* ---------- Tabs ---------- */
+  .tabs { display:flex; gap:.5rem; margin:1.2rem 0; flex-wrap:wrap; }
+  .tab { flex:1; min-width:250px; text-align:left; cursor:pointer; border:1px solid var(--line);
+    background:var(--surface); border-radius:14px; padding:.85rem 1rem;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+  .tab:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(58,69,196,.10); }
+  .tab.active { border-color: transparent; background:var(--brand); color:#fff;
+    box-shadow: 0 10px 24px rgba(109,40,217,.28); }
+  .tab[data-lecture="2"].active { background: var(--theme-2-brand);
+    box-shadow: 0 10px 24px rgba(13,148,136,.30); }
+  .tab .t-num { font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    opacity:.75; display:block; margin-bottom:.15rem;}
+  .tab.active .t-num { opacity:.85; }
+  .tab .t-name { font-weight:700; font-size:1.02rem; display:block; }
+  .tab .t-hours { font-size:.8rem; opacity:.8; }
+
+  /* ---------- Slide deck: in-place transitions ---------- */
+  .lecture { position: relative; }
+  .lecture#lec-2 { --violet: var(--theme-2); --cyan: var(--theme-2-dark); --mark: var(--theme-2-dark);
+    --brand: var(--theme-2-brand); }
+  .lecture.active { display:block; }
+  .lecture:not(.active) { display:none; }
+  .slide { position:absolute; top:0; left:0; width:100%;
+    opacity:0; visibility:hidden; transform: translateY(18px);
+    transition: opacity .38s ease, transform .38s ease, visibility 0s linear .38s;
+    background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:1.8rem 1.9rem; box-shadow:0 14px 34px rgba(20,26,46,.08); }
+  .slide.active { position:relative; opacity:1; visibility:visible; transform: none;
+    transition: opacity .38s ease, transform .38s ease; }
+
+  .slide .kicker { font-size:.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--violet); margin:0 0 .35rem; display:flex; align-items:center; gap:.5rem;}
+  .slide .kicker::before { content:""; width:22px; height:3px; border-radius:2px; background:var(--brand); }
+  .slide.quiz .kicker { color:var(--cyan);}
+  h2.st { font-size: clamp(1.25rem, 2.6vw, 1.6rem); line-height:1.2; margin:0 0 .65rem; color:var(--ink); }
+  .slide p.lead { color:var(--muted); margin:.3rem 0 .9rem; }
+
+  .slide.cover { background:var(--brand); color:#fff; border:none; overflow:hidden; }
+  .slide.cover::before, .slide.cover::after { content:""; position:absolute; border-radius:50%; filter:blur(46px); opacity:.45; z-index:0; }
+  .slide.cover::before { width:300px; height:300px; background:#22d3ee; top:-90px; right:-40px; }
+  .slide.cover::after { width:260px; height:260px; background:#f0abfc; bottom:-100px; left:-60px; }
+  .slide.cover > * { position:relative; z-index:1; }
+  .slide.cover .kicker { color:#fff; opacity:.9; }
+  .slide.cover .kicker::before { background:#fff; }
+  .slide.cover h2.st { color:#fff; font-size: clamp(1.6rem, 4vw, 2.3rem); }
+  .slide.cover p.lead { color:rgba(255,255,255,.92); }
+  .tagrow { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1.2rem; }
+  .cover .tagrow span { background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.4);
+    padding:.3rem .7rem; border-radius:999px; font-size:.82rem; font-weight:600; backdrop-filter:blur(2px); }
+  .tagrow.plain span { background:#eef0ff; color:var(--indigo); border:1px solid var(--line);
+    padding:.3rem .7rem; border-radius:999px; font-size:.82rem; font-weight:600; }
+
+  /* content helpers */
+  .card { position: relative; overflow: hidden; border-radius: 14px; padding: .9rem 1.1rem;
+    margin: .7rem 0; background: #fff; box-shadow: 0 6px 18px rgba(20,26,46,.06); }
+  .card::after { content:""; position:absolute; top:-34px; right:-34px; width:96px; height:96px;
+    border-radius:50%; background: var(--violet); opacity:.10; pointer-events:none; }
+  .card.cyan { background: linear-gradient(135deg,#e6f7fc 0%,#fff 70%); }
+  .card.cyan::after { background: var(--cyan); }
+  .card.green { background: linear-gradient(135deg,#e5f9ee 0%,#fff 70%); }
+  .card.green::after { background: var(--ok); }
+  .card.amber { background: linear-gradient(135deg,#fff3df 0%,#fff 70%); }
+  .card.amber::after { background: var(--warn); }
+  .card.blue { background: linear-gradient(135deg,#e9edff 0%,#fff 70%); }
+  .card.blue::after { background: var(--indigo); }
+  .card.pink { background: linear-gradient(135deg,#fde6f2 0%,#fff 70%); }
+  .card.pink::after { background: #db2777; }
+  .card.tomato { background: linear-gradient(135deg,#ffe9e3 0%,#fff 70%); }
+  .card.tomato::after { background: #ea580c; }
+  .card h3 { margin:0 0 .3rem; font-size:1rem; }
+  .card h3::before { content:""; display:inline-block; width:11px; height:11px; margin-right:.5rem;
+    border-radius:50%; background:var(--mark); vertical-align:baseline; }
+  .card h3 sub, .card h3 sup { font-size:.62em; line-height:0; }
+  .card.cyan h3::before { background: var(--cyan); }
+  .card.green h3::before { background: var(--ok); }
+  .card.amber h3::before { background: var(--warn); }
+  .card.blue h3::before { background: var(--indigo); }
+  .card.pink h3::before { background: #db2777; }
+  .card.tomato h3::before { background: #ea580c; }
+  .card p, .card ul { margin:.25rem 0; }
+  ul.clean { margin:.3rem 0; padding-left:1.1rem; }
+  ul.clean li { margin:.3rem 0; }
+  .rules { margin:.6rem 0; padding:0; list-style:none; }
+  .rules li { position:relative; padding:.5rem .4rem .5rem 2.2rem; border-bottom:1px dashed var(--line); }
+  .rules li:last-child { border-bottom:none; }
+  .rules li::before { content:"✓"; position:absolute; left:.2rem; top:.5rem; width:1.3rem; height:1.3rem;
+    line-height:1.3rem; text-align:center; border-radius:50%; background:var(--ok-soft); color:var(--ok);
+    font-weight:800; font-size:.78rem; }
+  .formula { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background:#f3f4fb; border:1px solid var(--line); border-radius:8px;
+    padding:.6rem .8rem; margin:.5rem 0; font-size:.95rem; overflow-x:auto; }
+  .formula b { color:var(--indigo); }
+  .pill { display:inline-block; font-family:ui-monospace,monospace; font-weight:700;
+    background:#eef0ff; color:var(--indigo); padding:.05rem .45rem; border-radius:6px; }
+  table { border-collapse:collapse; width:100%; font-size:.88rem; margin:.6rem 0; }
+  th, td { padding:.42rem .6rem; border-bottom:1px solid var(--line); text-align:left; }
+  th { color:var(--muted); font-weight:600; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  td.mono, .mono { font-family:ui-monospace, monospace; }
+  .scroll { overflow-x:auto; }
+  .cols2 { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+  .steps { counter-reset:step; list-style:none; padding:0; margin:.4rem 0; }
+  .steps li { counter-increment:step; position:relative; padding:.4rem 0 .4rem 2.3rem; }
+  .steps li::before { content:counter(step); position:absolute; left:0; top:.4rem; width:1.7rem;
+    height:1.7rem; line-height:1.7rem; text-align:center; border-radius:50%;
+    background:var(--brand); color:#fff; font-weight:800; font-size:.85rem; }
+  .algo { font-family:ui-monospace,monospace; background:#0f172a; color:#dbeafe; border-radius:10px;
+    padding:1rem 1.2rem; font-size:.9rem; margin:.6rem 0; overflow-x:auto;}
+  .algo .c { color:#7dd3fc; }
+  .note { font-size:.85rem; color:var(--muted); font-style:italic; margin:.4rem 0; }
+
+  /* sources */
+  .src { border:1px solid var(--line); border-radius:12px; padding:.1rem 1rem .6rem; margin:.8rem 0; background:#fafbff;}
+  .src h3 { font-size:.9rem; margin:.8rem 0 .3rem; color:var(--indigo); text-transform:uppercase; letter-spacing:.04em;}
+  .src ul { margin:.2rem 0; padding-left:1.1rem; }
+  .src li { margin:.3rem 0; }
+  a.clink { color:var(--indigo); text-decoration:none; border-bottom:1px dotted var(--violet); }
+  a.clink:hover { color:var(--violet); }
+
+  /* ---------- Quiz ---------- */
+  .q-count { font-size:.85rem; color:var(--muted); margin-bottom:.6rem; font-weight:600; }
+  .opt { display:block; width:100%; text-align:left; cursor:pointer; border:1.5px solid var(--line);
+    background:#fff; border-radius:10px; padding:.65rem .9rem; margin:.5rem 0; font:inherit; color:var(--ink);
+    transition: border-color .12s, background .12s, transform .08s; }
+  .opt:hover:not(:disabled) { border-color:var(--violet); transform:translateX(3px); }
+  .opt:disabled { cursor:default; }
+  .opt .l { font-weight:700; color:var(--muted); margin-right:.5rem; }
+  .opt.right { border-color:var(--ok); background:var(--ok-soft); }
+  .opt.wrong { border-color:var(--bad); background:var(--bad-soft); }
+  .opt.dim { opacity:.55; }
+  .explain { display:none; margin:.7rem 0 0; padding:.8rem 1rem; border-radius:10px; }
+  .explain.show { display:block; }
+  .explain.ok { background:var(--ok-soft); border:1px solid #86efac; }
+  .explain.bad { background:var(--bad-soft); border:1px solid #fca5a5; }
+  .explain .head { font-weight:800; margin-bottom:.25rem; }
+  .explain.ok .head { color:var(--ok); }
+  .explain.bad .head { color:var(--bad); }
+  .score-band { margin-top:1rem; font-size:.9rem; font-weight:700; color:var(--muted);}
+
+  /* ---------- Nav ---------- */
+  .pbar { height:6px; background:#dde2f0; border-radius:99px; overflow:hidden; margin:1rem 0 .5rem; }
+  #pfill { height:100%; width:0%; background:var(--brand); border-radius:99px; transition:width .35s ease; }
+  .nav { display:flex; align-items:center; gap:.6rem; margin-top:.6rem; }
+  .nav button { cursor:pointer; border:none; border-radius:10px; font:inherit; font-weight:700;
+    padding:.6rem 1.1rem; background:var(--surface); border:1px solid var(--line); color:var(--ink);
+    transition: transform .1s, background .12s; }
+  .nav button:hover:not(:disabled) { background:#f1f3ff; transform:translateY(-1px); }
+  .nav button:disabled { opacity:.4; cursor:not-allowed; }
+  .nav .primary { background:var(--brand); color:#fff; border:none; }
+  .nav .primary:hover:not(:disabled) { filter:brightness(1.06); }
+  .dots { flex:1; display:flex; gap:4px; justify-content:center; min-width:0; overflow:hidden; }
+  .dot { width:5px; height:5px; flex:none; border-radius:50%; background:#c9cfdf; border:none; padding:0;
+    cursor:pointer; transition: transform .12s, background .15s, width .12s; }
+  .dot:hover { background:var(--violet); }
+  .dot.active { background:var(--violet); transform:scale(1.3); width:8px; border-radius:99px; }
+  .dot.quizdot { background:var(--cyan); opacity:.55; }
+  .dot.quizdot.active { background:var(--cyan); opacity:1; transform:scale(1.3); width:8px; border-radius:99px; }
+  .counter { font-variant-numeric:tabular-nums; font-size:.85rem; color:var(--muted); font-weight:600; min-width:3.2rem; text-align:center; }
+
+  /* ---------- Footer ---------- */
+  footer { color:var(--muted); font-size:.82rem; border-top:1px solid var(--line);
+    margin-top:2.5rem; padding-top:.9rem; }
+
+  @media (max-width: 620px){
+    .cols2 { grid-template-columns:1fr; }
+    .slide { padding:1.2rem 1.1rem; }
+    .dots { display:none; }
+  }
+
+  @media print {
+    body { background:#fff; }
+    .bg-anim { display:none; }
+    main { max-width:none; padding:0; }
+    header.top, .tabs, .nav, .controls { display:none; }
+    .lecture, .slide { display:block !important; }
+    .lecture { position:static; }
+    .slide { position:static !important; opacity:1 !important; visibility:visible !important;
+      transform:none !important; break-inside:avoid; border:1px solid #ccc; margin:0 0 1rem; }
+    .slide.cover { background:#fff; color:var(--ink); -webkit-print-color-adjust:exact; }
+    .slide.cover::before, .slide.cover::after { display:none; }
+    .explain { display:block !important; }
+    a { color:var(--indigo); }
+  }
+</style>
+</head>
+<body>
+<div class="bg-anim"><i class="d1"></i><i class="d2"></i><i class="d3"></i><i class="d4"></i></div>
+<main>
+  <header class="top">
+    <span class="course">ДУП.03 · Основы информационных технологий</span>
+    <h1>Лекции 1–2: Введение в курс и системы счисления</h1>
+    <p class="meta">Интерактивные материалы для самостоятельной подготовки · 2 академических часа · в рамках курса объёмом 68 часов (очная и заочная формы обучения). Отчётные и контрольные материалы встроены в презентацию.</p>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-lecture="1" role="tab" aria-selected="true">
+      <span class="t-num">Лекция 1 · 1 час · очно</span>
+      <span class="t-name">Введение в курс</span>
+      <span class="t-hours">Информация · история ВТ · IBM/Intel/Microsoft · открытая архитектура</span>
+    </button>
+    <button class="tab" data-lecture="2" role="tab" aria-selected="false">
+      <span class="t-num">Лекция 2 · 1 час · практикум</span>
+      <span class="t-name">Перевод чисел в системы счисления</span>
+      <span class="t-hours">Двоичная, восьмеричная, шестнадцатеричная · алгоритмы, примеры, арифметика</span>
+    </button>
+  </div>
+
+  <!-- ============ LECTURE 1 ============ -->
+  <section class="lecture active" id="lec-1" aria-label="Лекция 1: Введение в курс">
+
+    <article class="slide cover active">
+      <p class="kicker">Лекция 1 · Введение в курс</p>
+      <h2 class="st">Информационные технологии: от истории вычислительной техники к современному персональному компьютеру</h2>
+      <p class="lead">Рассматриваются понятия информации и информационных технологий, этапы становления персонального компьютера, роль компаний IBM, Intel и Microsoft, а также сущность понятия «открытая архитектура» и её влияние на распространение персональной вычислительной техники.</p>
+      <div class="tagrow">
+        <span>Информация и данные</span><span>Свойства информации</span><span>История вычислительной техники</span><span>Открытая архитектура</span><span>IBM · Intel · Microsoft</span>
+      </div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Базовые понятия</p>
+      <h2 class="st">Информация, данные и информационные технологии</h2>
+      <p class="lead">Следует различать категории «данные» и «информация», на которых строится дальнейшее изложение курса.</p>
+      <div class="card">
+        <h3>Данные</h3>
+        <p>Зафиксированные сведения о фактах, представленные в формализованном виде (числа, текст, битовое представление). Вне контекста данные не несут самостоятельного смысла.</p>
+      </div>
+      <div class="card">
+        <h3>Информация</h3>
+        <p>Данные, осмысленные и используемые для принятия решения. Так, числовое значение «42» является данными, тогда как суждение «42 — температура больного» представляет собой информацию.</p>
+      </div>
+      <div class="card cyan">
+        <h3>Информационные технологии</h3>
+        <p>Совокупность методов, процессов и программно-аппаратных средств, обеспечивающих сбор, хранение, обработку и передачу информации.</p>
+      </div>
+      <div class="card blue">
+        <h3>Назначение компьютера</h3>
+        <p>Компьютер представляет собой универсальное устройство автоматизации обработки информации. История вычислительной техники отражает путь к повышению скорости, снижению стоимости и упрощению этого процесса.</p>
+      </div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Основные свойства</p>
+      <h2 class="st">Свойства информации</h2>
+      <p class="lead">Информация обладает совокупностью свойств, определяющих её практическую ценность. Рекомендуется проверить каждое свойство на самостоятельных примерах.</p>
+      <div class="cols2">
+        <div class="card tomato"><h3>Объективность</h3><p>Независимость от чьего-либо мнения. Например, значение температуры воздуха является объективным.</p></div>
+        <div class="card cyan"><h3>Достоверность</h3><p>Соответствие реальному положению дел. Недостоверная информация приводит к ошибочным решениям.</p></div>
+        <div class="card green"><h3>Полнота</h3><p>Достаточность для понимания вопроса и принятия решения; неполная информация служит причиной ошибок.</p></div>
+        <div class="card amber"><h3>Актуальность</h3><p>Своевременность и значимость в текущий момент; устаревшие сведения бесполезны для многих задач.</p></div>
+        <div class="card blue"><h3>Доступность</h3><p>Понятность информации в форме её представления.</p></div>
+        <div class="card pink"><h3>Ценность</h3><p>Пригодность для достижения конкретной цели.</p></div>
+      </div>
+      <div class="card amber"><p><b>Вывод:</b> полноценная информация является объективной, достоверной, полной, актуальной, доступной и ценной. Указанные критерии следует применять при оценке любого источника данных.</p></div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Действия с информацией</p>
+      <h2 class="st">Информационные процессы</h2>
+      <p class="lead">С информацией совершаются четыре базовых процесса, из которых складывается любая информационная технология.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>Процесс</th><th>Содержание</th><th>Пример (в персональном компьютере)</th></tr></thead>
+        <tbody>
+          <tr><td><b>Сбор</b></td><td>Получение информации из внешней среды</td><td>Ввод с клавиатуры, сканера, микрофона</td></tr>
+          <tr><td><b>Хранение</b></td><td>Фиксация информации на носителе</td><td>Запись на жёсткий диск, на внешние накопители</td></tr>
+          <tr><td><b>Обработка</b></td><td>Преобразование информации по установленным правилам</td><td>Вычисления, сортировка, редактирование</td></tr>
+          <tr><td><b>Передача</b></td><td>Перемещение информации между объектами</td><td>Отправка сообщения по сети, вывод на экран</td></tr>
+        </tbody>
+      </table></div>
+      <div class="card blue"><h3>Значение информационных технологий</h3>
+        <p>Информационные технологии автоматизируют перечисленные процессы, реализуя их средствами вычислительной техники.</p>
+      </div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Историческая справка</p>
+      <h2 class="st">Основные этапы развития вычислительной техники</h2>
+      <ol class="steps">
+        <li><b>Механический этап.</b> Счёты, арифмометры. В XIX веке Ч. Бэббиджем предложена идея аналитической машины с хранимой программой; Ада Лавлейс разработала первый алгоритм.</li>
+        <li><b>Электромеханический этап.</b> Применение реле и перфокарт; счётно-табуляционные машины компании IBM.</li>
+        <li><b>Электронный (ламповый) этап.</b> ЭВМ 1940–1950-х годов: ENIAC, отечественные машины. Отличались большими размерами, значительным энергопотреблением и высокой стоимостью.</li>
+        <li><b>Применение транзисторов.</b> Устройства стали меньше и надёжнее ламповых; габариты машин уменьшились.</li>
+        <li><b>Интегральные схемы.</b> На одном кристалле размещаются тысячи элементов; создаются мейнфреймы (например, IBM System/360).</li>
+        <li><b>Микропроцессор.</b> Размещение всего процессора на одном кристалле послужило основой персонального компьютера.</li>
+      </ol>
+      <p class="note">Каждый последующий этап обеспечивал рост быстродействия, надёжности и снижение стоимости, что в итоге привело к массовому использованию вычислительной техники.</p>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Периодизация поколений</p>
+      <h2 class="st">Поколения электронно-вычислительных машин</h2>
+      <p class="lead">Принято выделять четыре поколения ЭВМ по признаку элементной базы.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>Поколение</th><th>Элементная база</th><th>Примеры</th><th>Особенность</th></tr></thead>
+        <tbody>
+          <tr><td class="num">I</td><td>Электронные лампы</td><td>ENIAC, МЭСМ</td><td>Большие размеры и частые отказы</td></tr>
+          <tr><td class="num">II</td><td>Транзисторы</td><td>Урал-2, IBM 1401</td><td>Повышенные компактность и надёжность</td></tr>
+          <tr><td class="num">III</td><td>Интегральные схемы</td><td>IBM System/360</td><td>Развитие операционных систем и терминалов</td></tr>
+          <tr><td class="num">IV</td><td>Микропроцессоры</td><td>IBM PC, Apple</td><td>Появление персональных компьютеров</td></tr>
+        </tbody>
+      </table></div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Появление персонального компьютера</p>
+      <h2 class="st">Этапы становления персонального компьютера</h2>
+      <p class="lead">Ниже приведены ключевые события, определившие облик современного настольного компьютера.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>Год</th><th>Событие</th><th>Значение</th></tr></thead>
+        <tbody>
+          <tr><td class="num mono">1975</td><td>Altair 8800</td><td>Первый серийный микрокомпьютер для энтузиастов; начальный этап деятельности компании Microsoft.</td></tr>
+          <tr><td class="num mono">1977</td><td>Apple II</td><td>Готовое к использованию устройство, оснащённое цветной графикой.</td></tr>
+          <tr><td class="num mono">1981</td><td><b>IBM PC</b></td><td>Установил стандарт «IBM-совместимых» компьютеров и принцип открытой архитектуры.</td></tr>
+          <tr><td class="num mono">1983</td><td>IBM PC XT</td><td>Включение жёсткого диска в стандартную конфигурацию.</td></tr>
+          <tr><td class="num mono">1984</td><td>IBM PC AT</td><td>Процессор Intel 80286, шина ISA — основа совместимых аналогов.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="lead">Консолидация рынка вокруг единого открытого стандарта послужила условием превращения компьютера в массовый продукт.</p>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Роль ключевых компаний</p>
+      <h2 class="st">Вклад IBM, Intel и Microsoft в развитие персонального компьютера</h2>
+      <div class="card">
+        <h3>IBM — стандарт аппаратного обеспечения</h3>
+        <p>Компания разработала IBM PC и опубликовала его спецификации, сформировав понятие IBM-совместимости — платформы, на которую ориентируются иные производители.</p>
+      </div>
+      <div class="card cyan">
+        <h3>Intel — микропроцессоры</h3>
+        <p>Обеспечивала поставку центрального процессора для IBM PC (<span class="pill">8088</span>) и продолжила развитие архитектуры <span class="pill">x86</span> (80286, Pentium, Core). Процессоры архитектуры Intel используются в большинстве персональных компьютеров.</p>
+      </div>
+      <div class="card green">
+        <h3>Microsoft — программное обеспечение</h3>
+        <p>Создала операционную систему <b>MS-DOS</b> для IBM PC, а впоследствии — <b>Windows</b> и прикладные программы. Программное обеспечение обеспечило функциональность аппаратных средств для конечного пользователя.</p>
+      </div>
+      <p class="lead">Совместными усилиями указанных компаний была сформирована модель «аппаратное обеспечение — программное обеспечение», в рамках которой открытый стандарт создал условия для независимого развития обеих составляющих.</p>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Ключевое понятие лекции</p>
+      <h2 class="st">Понятие «открытая архитектура» и её преимущества</h2>
+      <div class="card amber">
+        <h3>Определение</h3>
+        <p>Открытая архитектура — это публично документированные спецификации компьютера, позволяющие различным производителям выпускать совместимые компоненты (материнские платы, платы расширения, периферийные устройства) без согласования с разработчиком платформы.</p>
+      </div>
+      <div class="card blue">
+        <h3>Предпосылки распространения</h3>
+        <ul class="clean">
+          <li><b>Конкуренция</b> среди производителей приводит к снижению цен.</li>
+          <li><b>Совместимость</b> компонентов обеспечивает их взаимозаменяемость и лёгкость модернизации.</li>
+          <li><b>Экосистема</b> разработчиков аппаратного и программного обеспечения развивается независимо от производителя платформы.</li>
+          <li>Совокупность указанных факторов обеспечила популяризацию персонального компьютера.</li>
+        </ul>
+      </div>
+      <p class="lead">Противоположным подходом является закрытая архитектура, при которой компоненты производит единственный разработчик, вследствие чего их совместимость ограничена рамками одной платформы. Примеры — ранние компьютеры Apple и игровые консоли.</p>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Сравнительный анализ</p>
+      <h2 class="st">Сопоставление открытой и закрытой архитектуры</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>Критерий</th><th>Открытая архитектура</th><th>Закрытая архитектура</th></tr></thead>
+        <tbody>
+          <tr><td>Производители компонентов</td><td>Любая компания по открытой спецификации</td><td>Исключительно сам разработчик</td></tr>
+          <tr><td>Уровень цен</td><td>Низкий вследствие конкуренции</td><td>Высокий вследствие монополии</td></tr>
+          <tr><td>Модернизация</td><td>Лёгкая, компоненты взаимозаменяемы</td><td>Ограничена производителем</td></tr>
+          <tr><td>Совместимость программного обеспечения</td><td>Широкая экосистема</td><td>Ограничена рамками платформы</td></tr>
+          <tr><td>Примеры</td><td>IBM-совместимые компьютеры</td><td>Ранние компьютеры Apple, игровые консоли</td></tr>
+        </tbody>
+      </table></div>
+      <div class="card green"><p><b>Заключение:</b> на рынке персональных компьютеров открытая архитектура обеспечила массовость, многообразие выбора и низкие цены, что и привело к широкому распространению вычислительной техники.</p></div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Итоги лекции</p>
+      <h2 class="st">Резюме основных положений</h2>
+      <ul class="rules">
+        <li><b>Данные и информация нетождественны:</b> данные представляют собой формализованные сведения, информация — осмысленные данные, используемые для принятия решения.</li>
+        <li><b>Свойства информации:</b> объективность, достоверность, полнота, актуальность, доступность, ценность.</li>
+        <li><b>Информационные процессы:</b> сбор, хранение, обработка, передача; их автоматизацию обеспечивают информационные технологии.</li>
+        <li><b>История вычислительной техники</b> — последовательный переход от механических устройств к микропроцессору; выделяют четыре поколения ЭВМ по элементной базе.</li>
+        <li><b>IBM</b> установила открытый аппаратный стандарт, <b>Intel</b> — архитектуру процессора, <b>Microsoft</b> — операционную систему.</li>
+        <li><b>Открытая архитектура</b> обеспечивает конкуренцию, совместимость и снижение цен, что способствует популяризации компьютера.</li>
+        <li>Противоположный подход — <b>закрытая архитектура</b> (единственный производитель, ограниченная совместимость).</li>
+      </ul>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Домашнее задание</p>
+      <h2 class="st">Самостоятельная работа и рекомендуемые источники</h2>
+      <div class="card">
+        <h3>Задание</h3>
+        <ol class="clean">
+          <li>Составить конспект или таблицу, отражающую роль компаний IBM, Intel и Microsoft в развитии архитектуры персонального компьютера.</li>
+          <li>Сформулировать собственными словами определение понятия «открытая архитектура» и объяснить причины, по которым она способствовала популяризации персональных компьютеров.</li>
+        </ol>
+      </div>
+      <div class="src">
+        <h3>Учебная литература</h3>
+        <ul>
+          <li>С. В. Симонович, <b>«Информатика. Базовый курс»</b> (изд. «Питер») — разделы об архитектуре персонального компьютера и истории вычислительной техники.</li>
+          <li>М. С. Цветкова, Л. С. Великович, <b>«Информатика и ИКТ»</b> (изд. «Академия», СПО) — строение персонального компьютера.</li>
+          <li>Н. В. Макарова, В. Б. Волков, <b>«Информатика»</b> (изд. «Питер») — вводные разделы об информатике как науке.</li>
+        </ul>
+      </div>
+      <div class="src">
+        <h3>Интернет-источники</h3>
+        <ul>
+          <li><b>Российская электронная школа</b> — уроки по информатике, включая историю и устройство вычислительной техники: <a class="clink" href="https://resh.edu.ru/subject/8/" target="_blank" rel="noopener">resh.edu.ru</a></li>
+          <li>Википедия — статьи «Персональный компьютер» и «Открытая архитектура»: <a class="clink" href="https://ru.wikipedia.org/wiki/Персональный_компьютер" target="_blank" rel="noopener">ru.wikipedia.org</a></li>
+          <li>Онлайн-платформа Stepik — курсы по основам информатики для самостоятельного изучения: <a class="clink" href="https://stepik.org/catalog?tag=информатика" target="_blank" rel="noopener">stepik.org</a></li>
+        </ul>
+      </div>
+      <p class="lead">Для самопроверки предлагается пройти тест из пяти вопросов, размещённый на последующих слайдах.</p>
+    </article>
+
+    <article class="slide quiz">
+      <p class="kicker">Контрольный тест · Вопрос 1 из 5</p>
+      <h2 class="st">Что понимается под «открытой архитектурой» персонального компьютера?</h2>
+      <p class="q-count">Выберите один вариант ответа; пояснение появится после выбора.</p>
+      <button class="opt" data-ok="false"><span class="l">А.</span>Операционная система, распространяемая бесплатно</button>
+      <button class="opt" data-ok="false"><span class="l">Б.</span>Компьютер с корпусом, не оснащённым фиксирующей крышкой</button>
+      <button class="opt" data-ok="true"><span class="l">В.</span>Открытые спецификации, обеспечивающие совместимость компонентов различных производителей</button>
+      <button class="opt" data-ok="false"><span class="l">Г.</span>Архитектура процессоров, выпускаемых только компанией Intel</button>
+      <div class="explain">
+        <p class="head">Пояснение</p>
+        <p>Верно: <b>открытая архитектура</b> представляет собой публично документированные спецификации, благодаря которым компоненты выпускаются различными производителями и являются взаимно совместимыми. Это обеспечило конкуренцию, снижение цен и популяризацию персональных компьютеров.</p>
+      </div>
+    </article>
+
+    <article class="slide quiz">
+      <p class="kicker">Контрольный тест · Вопрос 2 из 5</p>
+      <h2 class="st">Какова роль компании Intel в истории персональных компьютеров?</h2>
+      <p class="q-count">Выберите один вариант ответа; пояснение появится после выбора.</p>
+      <button class="opt" data-ok="true"><span class="l">А.</span>Создание микропроцессоров архитектуры x86 для IBM-совместимых компьютеров</button>
+      <button class="opt" data-ok="false"><span class="l">Б.</span>Разработка операционной системы MS-DOS</button>
+      <button class="opt" data-ok="false"><span class="l">В.</span>Выпуск первого принтера для персональных компьютеров</button>
+      <button class="opt" data-ok="false"><span class="l">Г.</span>Создание сети Интернет</button>
+      <div class="explain">
+        <p class="head">Пояснение</p>
+        <p>Верно: <b>Intel</b> выпускала центральный процессор для IBM PC (<span class="pill">8088</span>) и развивала архитектуру <span class="pill">x86</span>. Операционная система MS-DOS разработана компанией Microsoft; сеть Интернет и принтеры к деятельности Intel не относятся.</p>
+      </div>
+    </article>
+
+    <article class="slide quiz">
+      <p class="kicker">Контрольный тест · Вопрос 3 из 5</p>
+      <h2 class="st">Какой компьютер установил стандарт «IBM-совместимых» машин?</h2>
+      <p class="q-count">Выберите один вариант ответа; пояснение появится после выбора.</p>
+      <button class="opt" data-ok="false"><span class="l">А.</span>Apple II</button>
+      <button class="opt" data-ok="false"><span class="l">Б.</span>Altair 8800</button>
+      <button class="opt" data-ok="true"><span class="l">В.</span>IBM PC (1981 год)</button>
+      <button class="opt" data-ok="false"><span class="l">Г.</span>Commodore 64</button>
+      <div class="explain">
+        <p class="head">Пояснение</p>
+        <p>Верно: именно <b>IBM PC</b>, выпущенный в <b>1981 году</b>, установил открытый стандарт, вокруг которого сформировался рынок IBM-совместимых компьютеров. Платформы Apple и Commodore являлись закрытыми.</p>
+      </div>
+    </article>
+
+    <article class="slide quiz">
+      <p class="kicker">Контрольный тест · Вопрос 4 из 5</p>
+      <h2 class="st">Какое направление деятельности было характерно для компании Microsoft в экосистеме IBM PC?</h2>
+      <p class="q-count">Выберите один вариант ответа; пояснение появится после выбора.</p>
+      <button class="opt" data-ok="false"><span class="l">А.</span>Производство мониторов</button>
+      <button class="opt" data-ok="true"><span class="l">Б.</span>Разработка программного обеспечения (MS-DOS, Windows)</button>
+      <button class="opt" data-ok="false"><span class="l">В.</span>Выпуск жёстких дисков</button>
+      <button class="opt" data-ok="false"><span class="l">Г.</span>Сборка материнских плат</button>
+      <div class="explain">
+        <p class="head">Пояснение</p>
+        <p>Верно: <b>Microsoft</b> разрабатывала операционную систему <b>MS-DOS</b> для IBM PC, а позднее — <b>Windows</b>. В модели «IBM — аппаратное обеспечение, Intel — процессор, Microsoft — программное обеспечение» программные средства сделали компьютер доступным для обычного пользователя.</p>
+      </div>
+    </article>
+
+    <article class="slide quiz">
+      <p class="kicker">Контрольный тест · Вопрос 5 из 5</p>
+      <h2 class="st">Что послужило главной причиной массового распространения персональных компьютеров?</h2>
+      <p class="q-count">Выберите один вариант ответа; пояснение появится после выбора.</p>
+      <button class="opt" data-ok="false"><span class="l">А.</span>Исключительно снижение стоимости корпусов</button>
+      <button class="opt" data-ok="true"><span class="l">Б.</span>Открытая архитектура, доступное программное обеспечение и конкуренция производителей</button>
+      <button class="opt" data-ok="false"><span class="l">В.</span>Появление цветных мониторов</button>
+      <button class="opt" data-ok="false"><span class="l">Г.</span>Отмена налоговых льгот на компьютеры</button>
+      <div class="explain">
+        <p class="head">Пояснение</p>
+        <p>Верно: массовому распространению компьютеров способствовал <b>комплекс факторов</b> — открытая архитектура (совместимость и конкуренция, обеспечивающие низкие цены) и доступность программного обеспечения. Отдельные факторы, такие как наличие мониторов, самостоятельного значения не имели.</p>
+      </div>
+      <div class="score-band">Результат по лекции 1: <span class="score">0/5</span></div>
+    </article>
+
+  </section>
+
+  <!-- ============ LECTURE 2 ============ -->
+  <section class="lecture" id="lec-2" aria-label="Лекция 2: Перевод чисел в системы счисления">
+
+    <article class="slide cover active">
+      <p class="kicker">Лекция 2 · Практическая работа №1</p>
+      <h2 class="st">Перевод десятичных чисел в различные системы счисления</h2>
+      <p class="lead">Рассматриваются позиционные системы счисления, правила перевода чисел между десятичной, двоичной, восьмеричной и шестнадцатеричной системами, а также приёмы выполнения арифметических действий над двоичными числами. Изучение материала составляет основу понимания способов хранения и обработки чисел в вычислительной технике.</p>
+      <div class="tagrow">
+        <span>Позиционные системы</span><span>Двоичная</span><span>Восьмеричная</span><span>Шестнадцатеричная</span><span>Алгоритмы перевода</span><span>Арифметические действия</span>
+      </div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Теоретические основы</p>
+      <h2 class="st">Позиционные системы счисления</h2>
+      <p class="lead">В позиционной системе счисления значение цифры определяется её позицией (местом) в записи числа.</p>
+      <div class="card">
+        <h3>Основание системы (q)</h3>
+        <p>Представляет собой количество цифр, используемых в системе. Десятичная система — 10 цифр (0–9), <b>двоичная</b> — 2 (0, 1), <b>восьмеричная</b> — 8 (0–7), <b>шестнадцатеричная</b> — 16 (0–9, A–F).</p>
+      </div>
+      <div class="card cyan">
+        <h3>Формула определения значения числа</h3>
+        <div class="formula">V = d<sub>n</sub>·q<sup>n</sup> + … + d<sub>1</sub>·q<sup>1</sup> + d<sub>0</sub>·q<sup>0</sup></div>
+        <p>Здесь <span class="pill">d</span> — цифры числа (записанные справа налево), <span class="pill">q</span> — основание системы. Нумерация позиций ведётся от младшего разряда, начиная с нуля.</p>
+      </div>
+      <div class="card blue">
+        <h3>Пример развёрнутой записи</h3>
+        <div class="formula">247<sub>10</sub> = 2·10<sup>2</sup> + 4·10<sup>1</sup> + 7·10<sup>0</sup> = 200 + 40 + 7</div>
+        <p>В десятичной системе данная запись привычна, однако приведённая формула одинаково применима к любой системе счисления.</p>
+      </div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Изучаемые системы</p>
+      <h2 class="st">Двоичная, восьмеричная и шестнадцатеричная системы счисления</h2>
+      <div class="cols2">
+        <div class="card">
+          <h3>Двоичная (q = 2)</h3>
+          <p>Используются цифры <span class="pill">0</span> и <span class="pill">1</span>. Применяется процессором непосредственно. Пример: <span class="pill">1101₂</span>.</p>
+        </div>
+        <div class="card">
+          <h3>Восьмеричная (q = 8)</h3>
+          <p>Используются цифры <span class="pill">0–7</span>. Является компактной записью троек двоичных разрядов. Пример: <span class="pill">15₈</span>.</p>
+        </div>
+        <div class="card">
+          <h3>Шестнадцатеричная (q = 16)</h3>
+          <p>Используются цифры <span class="pill">0–9, A B C D E F</span> (A = 10 … F = 15). Является компактной записью четвёрок двоичных разрядов. Пример: <span class="pill">1F₁₆</span>.</p>
+        </div>
+        <div class="card green">
+          <h3>Назначение систем 8 и 16</h3>
+          <p>Двоичное число <span class="pill">11011101</span> сложно для восприятия. В восьмеричной системе оно записывается как <span class="pill">335₈</span>, в шестнадцатеричной — <span class="pill">DD₁₆</span>, что короче и нагляднее.</p>
+        </div>
+      </div>
+      <div class="card amber"><p><b>Важно:</b> компьютер оперирует лишь двоичными значениями 0 и 1, следовательно, любые данные (числа, текст, изображения) хранятся в двоичной форме. Системы счисления представляют собой различные способы записи одних и тех же величин.</p></div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Обоснование применения</p>
+      <h2 class="st">Представление чисел в вычислительной технике</h2>
+      <p class="lead">Использование двоичной системы обусловлено техническими особенностями электронных устройств.</p>
+      <div class="cols2">
+        <div class="card">
+          <h3>Два устойчивых состояния</h3>
+          <p>Электрический сигнал легко интерпретировать как «присутствует / отсутствует», «включено / выключено». Подобное представление реализуется двумя цифрами — 0 и 1.</p>
+        </div>
+        <div class="card cyan">
+          <h3>Бит и байт</h3>
+          <p><b>Бит</b> — одна двоичная цифра (0 или 1). <b>Байт</b> состоит из восьми бит и представляет значения от <span class="pill">00000000₂</span> до <span class="pill">11111111₂</span>, то есть от 0 до 255 в десятичной системе.</p>
+        </div>
+        <div class="card green">
+          <h3>Надёжность реализации</h3>
+          <p>Различение двух уровней сигнала технически проще и дешевле, чем различение десяти; поэтому современная электроника основана на двоичном представлении.</p>
+        </div>
+        <div class="card blue">
+          <h3>Вывод</h3>
+          <p>Освоение перевода чисел в двоичную систему позволяет понять, каким образом числа представлены внутри вычислительных устройств, что составляет основу изучения аппаратного и программного обеспечения.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Правило № 1</p>
+      <h2 class="st">Перевод числа из произвольной системы счисления в десятичную</h2>
+      <p class="lead">Число разворачивается по формуле <b>V = Σ dᵢ · qⁱ</b>, после чего значения суммируются.</p>
+      <div class="card">
+        <h3>Пример 1 · перевод из двоичной системы</h3>
+        <div class="formula">1101<sub>2</sub> = 1·2<sup>3</sup> + 1·2<sup>2</sup> + 0·2<sup>1</sup> + 1·2<sup>0</sup> = 8 + 4 + 0 + 1 = <b>13</b></div>
+      </div>
+      <div class="card cyan">
+        <h3>Пример 2 · перевод из шестнадцатеричной системы</h3>
+        <div class="formula">2F<sub>16</sub> = 2·16<sup>1</sup> + F·16<sup>0</sup> = 32 + 15 = <b>47</b></div>
+        <p>Следует учитывать соответствия: <span class="pill">A=10</span> <span class="pill">B=11</span> <span class="pill">C=12</span> <span class="pill">D=13</span> <span class="pill">E=14</span> <span class="pill">F=15</span>.</p>
+      </div>
+      <div class="card blue">
+        <h3>Алгоритм (общий случай)</h3>
+        <ol class="clean">
+          <li>Пронумеровать позиции цифр справа налево, начиная с нуля.</li>
+          <li>Каждую цифру умножить на величину <span class="pill">q<sup>позиция</sup></span>.</li>
+          <li>Суммировать полученные произведения.</li>
+        </ol>
+      </div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Дополнительные примеры</p>
+      <h2 class="st">Перевод в десятичную систему счисления</h2>
+      <p class="lead">Для закрепления навыка следует рассмотреть примеры с различными основаниями.</p>
+      <div class="card">
+        <h3>Перевод из восьмеричной системы</h3>
+        <div class="formula">546<sub>8</sub> = 5·8<sup>2</sup> + 4·8<sup>1</sup> + 6·8<sup>0</sup> = 320 + 32 + 6 = <b>358</b></div>
+      </div>
+      <div class="card cyan">
+        <h3>Перевод из шестнадцатеричной системы (с буквенными цифрами)</h3>
+        <div class="formula">A3C<sub>16</sub> = 10·16<sup>2</sup> + 3·16<sup>1</sup> + 12·16<sup>0</sup> = 2560 + 48 + 12 = <b>2620</b></div>
+        <p>В данном случае <span class="pill">A=10</span>, <span class="pill">C=12</span>; буквенные цифры подставляются в соответствии с таблицей соответствия.</p>
+      </div>
+      <div class="card blue">
+        <h3>Дополнительный пример перевода из двоичной системы</h3>
+        <div class="formula">10010<sub>2</sub> = 1·16 + 0·8 + 0·4 + 1·2 + 0·1 = 16 + 2 = <b>18</b></div>
+      </div>
+      <p class="note">Если в записи присутствует нулевая цифра, соответствующее произведение обнуляется; вычисление следует вести точно по степеням основания.</p>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Правило № 2</p>
+      <h2 class="st">Перевод числа из десятичной системы в системы с другим основанием</h2>
+      <p class="lead">Последовательное деление на основание с последующей сборкой остатков.</p>
+      <div class="card">
+        <h3>Пример · перевод 13<sub>10</sub> в двоичную систему</h3>
+        <p>Число 13 последовательно делится на основание 2 до получения нулевого частного: <b>13 ÷ 2 = 6</b> (остаток 1), <b>6 ÷ 2 = 3</b> (остаток 0), <b>3 ÷ 2 = 1</b> (остаток 1), <b>1 ÷ 2 = 0</b> (остаток 1). Полученные остатки записываются в обратном порядке — последний остаток является старшей цифрой, первый — младшей. Результат: <b>1101<sub>2</sub></b>.</p>
+      </div>
+      <div class="card green">
+        <h3>Алгоритм перевода</h3>
+        <ol class="clean">
+          <li>Разделить число на основание <span class="pill">q</span>, зафиксировать остаток.</li>
+          <li>Частное последовательно делить на <span class="pill">q</span> до получения нулевого частного.</li>
+          <li>Записать остатки в обратном порядке — полученная последовательность является результатом перевода.</li>
+        </ol>
+      </div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Дополнительные примеры</p>
+      <h2 class="st">Перевод из десятичной системы счисления</h2>
+      <div class="card">
+        <h3>Пример · перевод 47<sub>10</sub> в шестнадцатеричную систему</h3>
+        <p>Число 47 делится на основание 16: <b>47 ÷ 16 = 2</b> (остаток 15), затем <b>2 ÷ 16 = 0</b> (остаток 2). Остатки записываются в обратном порядке: 2 и 15. Остаток 15 представляется цифрой <b>F</b> — получаем <b>2F<sub>16</sub></b>.</p>
+      </div>
+      <div class="card cyan">
+        <h3>Пример · перевод 358<sub>10</sub> в восьмеричную систему</h3>
+        <p>Число 358 делится на основание 8: <b>358 ÷ 8 = 44</b> (остаток 6), <b>44 ÷ 8 = 5</b> (остаток 4), <b>5 ÷ 8 = 0</b> (остаток 5). Остатки в обратном порядке: 5, 4, 6. Результат: <b>546<sub>8</sub></b>.</p>
+      </div>
+      <p class="note">Целесообразно выполнять проверку обратным переводом полученного числа в десятичную систему.</p>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Справочный материал</p>
+      <h2 class="st">Таблица соответствия чисел (0–15)</h2>
+      <p class="lead">Заучивание таблицы не является обязательным — при устойчивом понимании систем счисления ею можно пользоваться в качестве справочника.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>Десятичная</th><th>Двоичная</th><th>Восьмеричная</th><th>Шестнадцатеричная</th><th>Десятичная</th><th>Двоичная</th><th>Восьмеричная</th><th>Шестнадцатеричная</th></tr></thead>
+        <tbody>
+          <tr><td class="num">0</td><td class="mono">0000</td><td class="mono">0</td><td class="mono">0</td><td class="num">8</td><td class="mono">1000</td><td class="mono">10</td><td class="mono">8</td></tr>
+          <tr><td class="num">1</td><td class="mono">0001</td><td class="mono">1</td><td class="mono">1</td><td class="num">9</td><td class="mono">1001</td><td class="mono">11</td><td class="mono">9</td></tr>
+          <tr><td class="num">2</td><td class="mono">0010</td><td class="mono">2</td><td class="mono">2</td><td class="num">10</td><td class="mono">1010</td><td class="mono">12</td><td class="mono">A</td></tr>
+          <tr><td class="num">3</td><td class="mono">0011</td><td class="mono">3</td><td class="mono">3</td><td class="num">11</td><td class="mono">1011</td><td class="mono">13</td><td class="mono">B</td></tr>
+          <tr><td class="num">4</td><td class="mono">0100</td><td class="mono">4</td><td class="mono">4</td><td class="num">12</td><td class="mono">1100</td><td class="mono">14</td><td class="mono">C</td></tr>
+          <tr><td class="num">5</td><td class="mono">0101</td><td class="mono">5</td><td class="mono">5</td><td class="num">13</td><td class="mono">1101</td><td class="mono">15</td><td class="mono">D</td></tr>
+          <tr><td class="num">6</td><td class="mono">0110</td><td class="mono">6</td><td class="mono">6</td><td class="num">14</td><td class="mono">1110</td><td class="mono">16</td><td class="mono">E</td></tr>
+          <tr><td class="num">7</td><td class="mono">0111</td><td class="mono">7</td><td class="mono">7</td><td class="num">15</td><td class="mono">1111</td><td class="mono">17</td><td class="mono">F</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Для запоминания двоичных представлений чисел 0–15 целесообразно выучить первые четыре степени двойки: 1, 2, 4, 8.</p>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Правило · по таблице</p>
+      <h2 class="st">Перевод чисел по таблице соответствия</h2>
+      <p class="lead">Таблицу соответствия целесообразно применять при переводе небольших чисел, а также между двоичной и шестнадцатеричной системами.</p>
+      <div class="card">
+        <h3>Десятичная → шестнадцатеричная по таблице</h3>
+        <p>Находят в таблице число, равное десятичному (либо ближайшее меньшее), и считывают соответствующую шестнадцатеричную цифру. Например: <span class="pill">10 → A</span>, <span class="pill">14 → E</span>, <span class="pill">15 → F</span>.</p>
+      </div>
+      <div class="card cyan">
+        <h3>Десятичная → двоичная по таблице</h3>
+        <p>Значение из диапазона 0–15 отыскивается в таблице, и двоичная запись считывается из соответствующей строки. Например: <span class="pill">13 → 1101</span>, <span class="pill">7 → 0111</span>, <span class="pill">9 → 1001</span>.</p>
+      </div>
+      <div class="card blue">
+        <h3>Ограничения метода</h3>
+        <p>Точное соответствие в таблице существует лишь для диапазона 0–15. Для бóльших чисел таблицу применяют комбинированно: остатки, получаемые при переводе, попадают в указанный диапазон и заменяются соответствующими цифрами таблицы (например, остаток 15 → F).</p>
+      </div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Правило № 3</p>
+      <h2 class="st">Быстрые способы перевода через триады и тетрады</h2>
+      <p class="lead">Между двоичной и восьмеричной либо шестнадцатеричной системами возможно выполнять перевод без операции деления.</p>
+      <div class="card">
+        <h3>Перевод между двоичной и восьмеричной системами</h3>
+        <p>Двоичное число разделяется на группы по три разряда (триады), отсчитываемые справа налево, и каждая триада заменяется соответствующей восьмеричной цифрой.</p>
+        <div class="formula">11011<sub>2</sub> → 011 011 → 3 3 → <b>33<sub>8</sub></b><br>и обратно: <b>33<sub>8</sub></b> → 011 011 → 11011<sub>2</sub></div>
+      </div>
+      <div class="card cyan">
+        <h3>Перевод между двоичной и шестнадцатеричной системами</h3>
+        <p>Число разделяется на группы по четыре разряда (тетрады), каждая из которых заменяется шестнадцатеричной цифрой.</p>
+        <div class="formula">110111<sub>2</sub> → 0011 0111 → 3 7 → <b>37<sub>16</sub></b></div>
+      </div>
+      <div class="card amber"><p><b>Внимание:</b> при разделении недостающие старшие разряды необходимо дополнять нулями слева.</p></div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Арифметические действия</p>
+      <h2 class="st">Сложение двоичных чисел</h2>
+      <p class="lead">Сложение в двоичной системе осуществляется по правилам, аналогичным десятичным, с учётом переноса.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>0 + 0</th><th>0 + 1</th><th>1 + 0</th><th>1 + 1</th></tr></thead>
+        <tbody>
+          <tr><td>= <b>0</b></td><td>= <b>1</b></td><td>= <b>1</b></td><td>= <b>0</b>, перенос <b>1</b> в следующий разряд</td></tr>
+        </tbody>
+      </table></div>
+      <div class="card">
+        <h3>Пример: 1101₂ + 1011₂</h3>
+        <div class="formula" style="white-space:pre">   1101
+ + 1011
+   ─────
+   11000</div>
+        <p>Сложение выполняется поразрядно справа налево: в младшем разряде 1 + 1 = 0 с переносом единицы; далее 0 + 1 + перенос = 0 с переносом; в дальнейшем 1 + 0 + перенос = 0 с переносом и 1 + 1 + перенос = 1 с переносом, который образует старший разряд. Результат: <b>11000<sub>2</sub></b>.</p>
+      </div>
+      <p class="note">Перенос возникает, когда сумма разряда достигает двух и более — аналогично тому, как в десятичной системе происходит перенос при достижении десяти.</p>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Характерные затруднения</p>
+      <h2 class="st">Типичные ошибки при переводе чисел</h2>
+      <div class="card amber">
+        <h3>Разбор наиболее распространённых ошибок</h3>
+        <ul class="clean">
+          <li><b>Неправильный порядок остатков.</b> При переводе из десятичной системы остатки следует собирать снизу вверх, иначе результат окажется перевёрнутым.</li>
+          <li><b>Смешение оснований.</b> <span class="pill">15₈</span> и <span class="pill">15₁₆</span> представляют различные числа (13 и 21 в десятичной системе). Основание необходимо указывать внимательно.</li>
+          <li><b>Забвение буквенных цифр.</b> В шестнадцатеричной системе после цифры 9 используются буквы A–F; <span class="pill">2F₁₆</span> не следует отождествлять с <span class="pill">215₁₆</span>.</li>
+          <li><b>Отсутствие дополнения нулями</b> при образовании триад и тетрад — приводит к смещению групп и ошибочному результату.</li>
+          <li><b>Пропуск нулевых разрядов</b> в развёрнутой записи — приводит к потере степени основания.</li>
+        </ul>
+      </div>
+      <div class="card green"><p><b>Рекомендация:</b> выполнять проверку результата обратным переводом, что позволяет выявить ошибку и закрепить навык.</p></div>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Итоги лекции</p>
+      <h2 class="st">Резюме основных положений</h2>
+      <ul class="rules">
+        <li><b>Позиционная система счисления</b> — значение цифры определяется её позицией; основание q равно числу используемых цифр.</li>
+        <li><b>Перевод в десятичную систему:</b> развернуть число по формуле <b>V = Σ dᵢ·qⁱ</b> и суммировать значения с учётом позиций.</li>
+        <li><b>Перевод из десятичной системы:</b> последовательное деление на основание со сборкой остатков в обратном порядке.</li>
+        <li><b>Буквенные обозначения в шестнадцатеричной системе:</b> A=10, B=11, C=12, D=13, E=14, F=15.</li>
+        <li>Переход 2↔8 осуществляется через <b>триады</b> (по три разряда), 2↔16 — через <b>тетрады</b> (по четыре разряда); недостающие старшие разряды дополняются нулями.</li>
+        <li><b>Сложение двоичных чисел:</b> 1 + 1 = 0 с переносом единицы в следующий разряд.</li>
+        <li>Основание числа следует обязательно указывать индексом, например <span class="pill">1101<sub>2</sub></span>.</li>
+      </ul>
+    </article>
+
+    <article class="slide">
+      <p class="kicker">Практическая часть и источники</p>
+      <h2 class="st">Самостоятельная работа и рекомендуемые источники</h2>
+      <div class="card">
+        <h3>Задания для тренировки</h3>
+        <ol class="clean">
+          <li>Перевести в десятичную систему: <span class="pill">1011₍₂₎</span>, <span class="pill">3C₍₁₆₎</span>, <span class="pill">24₍₈₎</span>.</li>
+          <li>Перевести в двоичную систему число <span class="pill">19₍₁₀₎</span>, в шестнадцатеричную — число <span class="pill">255₍₁₀₎</span>.</li>
+          <li>Выполнить сложение двоичных чисел <span class="pill">1010₂ + 1100₂</span> и проверить результат переводом в десятичную систему.</li>
+          <li>Используя триады, перевести в восьмеричную систему число <span class="pill">11011101₂</span>, а с помощью тетрад — это же число в шестнадцатеричную систему.</li>
+        </ol>
+      </div>
+      <div class="src">
+        <h3>Учебная литература</h3>
+        <ul>
+          <li>С. В. Симонович, <b>«Информатика. Базовый курс»</b> (изд. «Питер») — раздел о системах счисления и арифметических действиях.</li>
+          <li>М. С. Цветкова, Л. С. Великович, <b>«Информатика и ИКТ»</b> (изд. «Академия», СПО) — представление чисел в электронно-вычислительных машинах.</li>
+          <li>Л. Л. Босова, <b>«Информатика»</b> — развёрнутые примеры перевода чисел и задачи для самостоятельного решения.</li>
+        </ul>
+      </div>
+      <div class="src">
+        <h3>Интернет-источники</h3>
+        <ul>
+          <li>Википедия — статьи «Система счисления», «Двоичная система счисления», «Шестнадцатеричная система счисления»: <a class="clink" href="https://ru.wikipedia.org/wiki/Система_счисления" target="_blank" rel="noopener">ru.wikipedia.org</a></li>
+          <li><b>Российская электронная школа</b> — уроки и задания по системам счисления: <a class="clink" href="https://resh.edu.ru/subject/8/" target="_blank" rel="noopener">resh.edu.ru</a></li>
+          <li>Тренажёры ЕГЭ по информатике — задания на кодирование чисел и системы счисления: <a class="clink" href="https://inf-ege.sdamgia.ru" target="_blank" rel="noopener">inf-ege.sdamgia.ru</a></li>
+          <li>Онлайн-конвертер чисел для самопроверки: <a class="clink" href="https://www.rapidtables.com/convert/number/index.html" target="_blank" rel="noopener">rapidtables.com</a></li>
+          <li>Онлайн-платформа Stepik — курс по основам информатики с автоматической проверкой: <a class="clink" href="https://stepik.org" target="_blank" rel="noopener">stepik.org</a></li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="slide quiz">
+      <p class="kicker">Контрольный тест · Вопрос 1 из 5</p>
+      <h2 class="st">Чему равно двоичное число 1101₂ в десятичной системе счисления?</h2>
+      <p class="q-count">Выберите один вариант ответа; пояснение появится после выбора.</p>
+      <button class="opt" data-ok="false"><span class="l">А.</span>11</button>
+      <button class="opt" data-ok="true"><span class="l">Б.</span>13</button>
+      <button class="opt" data-ok="false"><span class="l">В.</span>14</button>
+      <button class="opt" data-ok="false"><span class="l">Г.</span>15</button>
+      <div class="explain">
+        <p class="head">Пояснение</p>
+        <p>Развёрнутая запись: <b>1101₂ = 1·8 + 1·4 + 0·2 + 1·1 = 8 + 4 + 0 + 1 = 13</b>. Правильный ответ — 13.</p>
+      </div>
+    </article>
+
+    <article class="slide quiz">
+      <p class="kicker">Контрольный тест · Вопрос 2 из 5</p>
+      <h2 class="st">Каково основание шестнадцатеричной системы счисления?</h2>
+      <p class="q-count">Выберите один вариант ответа; пояснение появится после выбора.</p>
+      <button class="opt" data-ok="false"><span class="l">А.</span>8</button>
+      <button class="opt" data-ok="false"><span class="l">Б.</span>10</button>
+      <button class="opt" data-ok="true"><span class="l">В.</span>16</button>
+      <button class="opt" data-ok="false"><span class="l">Г.</span>2</button>
+      <div class="explain">
+        <p class="head">Пояснение</p>
+        <p>Основание системы равно числу используемых цифр. В шестнадцатеричной системе применяется шестнадцать цифр: <b>0–9 и A–F</b>. Правильный ответ — 16.</p>
+      </div>
+    </article>
+
+    <article class="slide quiz">
+      <p class="kicker">Контрольный тест · Вопрос 3 из 5</p>
+      <h2 class="st">Чему равно десятичное число 47 в шестнадцатеричной системе счисления?</h2>
+      <p class="q-count">Выберите один вариант ответа; пояснение появится после выбора.</p>
+      <button class="opt" data-ok="true"><span class="l">А.</span>2F</button>
+      <button class="opt" data-ok="false"><span class="l">Б.</span>2E</button>
+      <button class="opt" data-ok="false"><span class="l">В.</span>4B</button>
+      <button class="opt" data-ok="false"><span class="l">Г.</span>1F</button>
+      <div class="explain">
+        <p class="head">Пояснение</p>
+        <p>Деление: <b>47 : 16 = 2, остаток 15</b> (15 соответствует цифре F); <b>2 : 16 = 0, остаток 2</b>. Остатки собираются снизу вверх: <b>2F₁₆</b>. Проверка: 2·16 + 15 = 47.</p>
+      </div>
+    </article>
+
+    <article class="slide quiz">
+      <p class="kicker">Контрольный тест · Вопрос 4 из 5</p>
+      <h2 class="st">Какому числу соответствует цифра «A» в шестнадцатеричной системе счисления?</h2>
+      <p class="q-count">Выберите один вариант ответа; пояснение появится после выбора.</p>
+      <button class="opt" data-ok="false"><span class="l">А.</span>9</button>
+      <button class="opt" data-ok="true"><span class="l">Б.</span>10</button>
+      <button class="opt" data-ok="false"><span class="l">В.</span>15</button>
+      <button class="opt" data-ok="false"><span class="l">Г.</span>16</button>
+      <div class="explain">
+        <p class="head">Пояснение</p>
+        <p>В шестнадцатеричной системе после цифры 9 используются буквы: <b>A=10</b>, B=11, C=12, D=13, E=14, F=15. Правильный ответ — 10.</p>
+      </div>
+    </article>
+
+    <article class="slide quiz">
+      <p class="kicker">Контрольный тест · Вопрос 5 из 5</p>
+      <h2 class="st">Чему равно десятичное число 13 в двоичной системе счисления?</h2>
+      <p class="q-count">Выберите один вариант ответа; пояснение появится после выбора.</p>
+      <button class="opt" data-ok="false"><span class="l">А.</span>1010</button>
+      <button class="opt" data-ok="true"><span class="l">Б.</span>1101</button>
+      <button class="opt" data-ok="false"><span class="l">В.</span>1110</button>
+      <button class="opt" data-ok="false"><span class="l">Г.</span>1001</button>
+      <div class="explain">
+        <p class="head">Пояснение</p>
+        <p>Число 13 делится на 2 с фиксацией остатков, которые собираются в обратном порядке; результатом является <b>1101₂</b>. Проверка: 1·8 + 1·4 + 0·2 + 1·1 = 13.</p>
+      </div>
+      <div class="score-band">Результат по лекции 2: <span class="score">0/5</span></div>
+    </article>
+
+  </section>
+
+  <!-- ============ Navigation ============ -->
+  <div class="pbar"><div id="pfill"></div></div>
+  <div class="nav">
+    <button id="prev" disabled>← Назад</button>
+    <div class="dots" id="dots"></div>
+    <span class="counter" id="counter">1</span>
+    <button id="next" class="primary">Далее →</button>
+  </div>
+
+  <footer>
+    <b>ДУП.03 Основы информационных технологий</b> · Лекции 1–2 (введение в курс; системы счисления). Материалы предназначены для самостоятельной подготовки и повторения; контрольные вопросы служат целям самопроверки. Часть материала согласно учебному плану выносится на самостоятельное изучение — для этого следует использовать рекомендуемые источники. Сформировано 30.09.2026.
+  </footer>
+</main>
+
+<script>
+  /* ---------- Состояние лекций и слайдов ---------- */
+  var lectures = [document.getElementById('lec-1'), document.getElementById('lec-2')];
+  var slideIndex = [0, 0];
+  var activeLecture = 0;
+
+  var tabs = document.querySelectorAll('.tab');
+  var prevBtn = document.getElementById('prev');
+  var nextBtn = document.getElementById('next');
+  var counter = document.getElementById('counter');
+  var dotsBox = document.getElementById('dots');
+
+  function slidesOf(i){ return lectures[i].querySelectorAll('.slide'); }
+
+  function render(){
+    tabs.forEach(function(t, i){
+      t.classList.toggle('active', i === activeLecture);
+      t.setAttribute('aria-selected', i === activeLecture ? 'true' : 'false');
+    });
+    lectures.forEach(function(sec, i){ sec.classList.toggle('active', i === activeLecture); });
+
+    // Синхронизация цвета навигации (прогресс-бар и кнопки) с темой активной лекции
+    var rootStyle = document.documentElement.style;
+    if (activeLecture === 1){
+      rootStyle.setProperty('--brand', 'var(--theme-2-brand)');
+      rootStyle.setProperty('--violet', 'var(--theme-2)');
+      rootStyle.setProperty('--cyan', 'var(--theme-2-dark)');
+      rootStyle.setProperty('--mark', 'var(--theme-2-dark)');
+    } else {
+      rootStyle.setProperty('--brand', '');
+      rootStyle.setProperty('--violet', '');
+      rootStyle.setProperty('--cyan', '');
+      rootStyle.setProperty('--mark', '');
+    }
+
+    var slides = slidesOf(activeLecture);
+    slides.forEach(function(s, i){ s.classList.toggle('active', i === slideIndex[activeLecture]); });
+
+    var cur = slideIndex[activeLecture];
+    var last = slides.length - 1;
+    var isQuiz = slides[cur].classList.contains('quiz');
+
+    prevBtn.disabled = (cur === 0);
+    if (isQuiz && !slides[cur].classList.contains('answered')){
+      nextBtn.disabled = true;
+    } else {
+      nextBtn.disabled = cur === last;
+    }
+    nextBtn.textContent = cur === last ? 'Завершено ✓' : 'Далее →';
+    counter.textContent = (cur + 1) + ' / ' + slides.length;
+    document.getElementById('pfill').style.width = ((cur + 1) / slides.length * 100) + '%';
+    buildDots(slides, cur);
+  }
+
+  function buildDots(slides, cur){
+    dotsBox.innerHTML = '';
+    for (var i = 0; i < slides.length; i++){
+      var d = document.createElement('button');
+      d.className = 'dot' + (slides[i].classList.contains('quiz') ? ' quizdot' : '');
+      d.title = 'Слайд ' + (i+1);
+      if (i === cur) d.classList.add('active');
+      (function(idx){ d.addEventListener('click', function(){ go(idx); }); })(i);
+      dotsBox.appendChild(d);
+    }
+  }
+
+  function go(idx){
+    var slides = slidesOf(activeLecture);
+    if (idx < 0 || idx >= slides.length) return;
+    slideIndex[activeLecture] = idx;
+    render();
+  }
+
+  prevBtn.addEventListener('click', function(){ go(slideIndex[activeLecture] - 1); });
+  nextBtn.addEventListener('click', function(){ go(slideIndex[activeLecture] + 1); });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') go(slideIndex[activeLecture] + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(slideIndex[activeLecture] - 1);
+  });
+
+  /* ---------- Обработка ответов ---------- */
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.opt');
+    if (!btn) return;
+    var slide = btn.closest('.slide');
+    if (!slide || slide.classList.contains('answered')) return;
+    var li = lectures.indexOf(slide.closest('.lecture'));
+    if (li === -1) return;
+
+    slide.classList.add('answered');
+    var correct = btn.getAttribute('data-ok') === 'true';
+    var opts = slide.querySelectorAll('.opt');
+    opts.forEach(function(o){ o.disabled = true; });
+    var letters = ['А','Б','В','Г','Д','Е'];
+    var correctIdx = -1;
+    opts.forEach(function(o, k){ if (o.getAttribute('data-ok') === 'true') correctIdx = k; });
+
+    if (correct){
+      btn.classList.add('right');
+      slide.querySelector('.explain').classList.add('ok');
+      slide.querySelector('.explain .head').textContent = 'Верно. Ответ выбран правильно.';
+    } else {
+      btn.classList.add('wrong');
+      slide.querySelector('.explain').classList.add('bad');
+      slide.querySelector('.explain .head').textContent =
+        'Неверно. Правильный ответ — ' + (letters[correctIdx] || (correctIdx+1));
+    }
+    slide.querySelector('.explain').classList.add('show');
+
+    if (li === activeLecture) render();
+  });
+
+  /* ---------- Переключение лекций ---------- */
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){
+      if (activeLecture === i) return;
+      activeLecture = i;
+      slideIndex[i] = 0;
+      render();
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>
